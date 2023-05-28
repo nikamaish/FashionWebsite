@@ -1,0 +1,665 @@
+[cloudera@quickstart ~]$ hive
+
+Logging initialized using configuration in file:/etc/hive/conf.dist/hive-log4j.properties
+WARNING: Hive CLI is deprecated and migration to Beeline is recommended.
+
+CREATE DATABASE
+
+hive> CREATE DATABASE IF NOT EXISTS user2;
+OK
+Time taken: 0.526 seconds
+
+SHOW DATABASE
+
+hive> show databases;
+OK
+default
+user1
+user2
+Time taken: 0.309 seconds, Fetched: 3 row(s)
+
+DROP DATABASE
+
+hive> drop database if exists user1;
+OK
+Time taken: 0.274 seconds
+
+USE DATABASE
+
+
+hive> use user2;
+OK
+Time taken: 0.031 seconds
+
+CREAte TABLE IN HIVE
+hive> CREATE TABLE IF NOT EXISTS employee2(eid int,name String,salary String,designation String)
+    > ROW FORMAT DELIMITED
+    > FIELDS TERMINATED BY ','
+    > LINES TERMINATED BY '\n'
+    > STORED AS TEXTFILE;
+OK
+Time taken: 0.371 seconds
+
+
+
+LOAD DATA FROM FILE INTO TABLE
+
+hive> load data local inpath '/home/cloudera/Downloads/sample_emp.txt' overwrite into table employee2;
+Loading data to table user2.employee2
+Table user2.employee2 stats: [numFiles=1, numRows=0, totalSize=162, rawDataSize=0]
+OK
+Time taken: 1.269 seconds
+
+
+DISPLAY DATA FROM TABLE
+
+hive> select * from employee2;
+OK
+1201	Gopal	45000	Technical manager
+1202	Manisha	45000	Proof reader
+1203	Masthanvali	40000	Technical writer
+1204	Kiran	40000	Hr Admin
+1205	Kranthi	30000	Op Admin
+NULL	NULL	NULL	NULL
+Time taken: 0.422 seconds, Fetched: 6 row(s)
+
+ALTER TABLE IN HIVE
+hive> ALTER TABLE employee2 CHANGE name empname String;
+OK
+Time taken: 0.181 seconds
+hive> ALTER TABLE employee2 CHANGE salary salary Double;
+OK
+Time taken: 0.186 seconds
+hive> alter table employee2 add columns (dept string comment'Department Name');
+OK
+Time taken: 0.178 seconds
+
+
+DESCRIBE TABLE IN HIVE
+
+hive> describe employee2;
+OK
+eid                 	int                 	                    
+empname             	string              	                    
+salary              	double              	                    
+designation         	string              	                    
+dept                	string              	Department Name     
+Time taken: 0.106 seconds, Fetched: 5 row(s)
+hive> CREATE TABLE IF NOT EXISTS employee2(eid int,name String,salary String,designation String)
+    > ROW FORMAT DELIMITED
+    > FIELDS TERMINATED BY ','
+    > LINES TERMINATED BY '\n'
+    > STORED AS TEXTFILE;
+OK
+Time taken: 0.021 seconds
+hive> show tables;
+OK
+employee2
+Time taken: 0.045 seconds, Fetched: 1 row(s)
+
+
+DROP TABLE IN HIVE
+
+
+hive> drop table employee1;
+OK
+Time taken: 0.117 seconds
+
+
+
+SHOW TABLE IN HIVE
+
+
+hive> show tables;
+OK
+employee2
+Time taken: 0.018 seconds, Fetched: 1 row(s)
+
+
+
+CREATE EXTERNAL TABLE
+
+[cloudera@quickstart ~]$ hdfs dfs -mkdir /HiveDirectory1
+[cloudera@quickstart ~]$ hdfs dfs -put /home/cloudera/Downloads/sample_emp.txt /HiveDirectory1
+
+
+
+hive> create external table emplist3 (Id int,Name string,Salary float)
+    > row format delimited
+    > fields terminated by ','
+    > location '/HiveDirectory1';
+OK
+Time taken: 0.082 seconds
+hive> select * from emplist3;
+OK
+1201	Gopal	45000.0
+1202	Manisha	45000.0
+1203	Masthanvali	40000.0
+1204	Kiran	40000.0
+1205	Kranthi	30000.0
+NULL	NULL	NULL
+Time taken: 0.126 seconds, Fetched: 6 row(s)
+
+
+
+
+FLIGHT INFORMATION SYSTEM ANALYSIS USING HIVE
+
+1.CREATE HIVE TABLE.flight_data:
+
+
+hive> CREATE TABLE flight_data(
+    >    year INT,
+    >    month INT,
+    >    day INT,
+    >    day_of_week INT,
+    >    dep_time INT,
+    >    crs_dep_time INT,
+    >    arr_time INT,
+    >    crs_arr_time INT,
+    >    unique_carrier STRING,
+    >    flight_num INT,
+    >    tail_num STRING,
+    >    actual_elapsed_time INT,
+    >    crs_elapsed_time INT,
+    >    air_time INT,
+    >    arr_delay INT,
+    >    dep_delay INT,
+    >    origin STRING,
+    >    dest STRING,
+    >    distance INT,
+    >    taxi_in INT,
+    >    taxi_out INT,
+    >    cancelled INT,
+    >    cancellation_code STRING,
+    >    diverted INT,
+    >    carrier_delay STRING,
+    >    weather_delay STRING,
+    >    nas_delay STRING,
+    >    security_delay STRING,
+    >    late_aircraft_delay STRING
+    > )
+    > ROW FORMAT DELIMITED
+    > FIELDS TERMINATED BY ',';
+OK
+Time taken: 0.127 seconds
+
+
+LOAD DATA INTO TABLE
+
+
+hive> LOAD DATA LOCAL INPATH '/home/cloudera/2008.csv' OVERWRITE INTO TABLE flight_data;
+FAILED: SemanticException Line 1:23 Invalid path ''/home/cloudera/2008.csv'': No files matching path file:/home/cloudera/2008.csv
+hive> LOAD DATA LOCAL INPATH '/home/cloudera/Downloads/2008.csv' OVERWRITE INTO TABLE flight_data;
+Loading data to table default.flight_data
+Table default.flight_data stats: [numFiles=1, numRows=0, totalSize=689413044, rawDataSize=0]
+OK
+Time taken: 13.985 seconds
+hive> select * from flight_data limit 10;
+OK
+2008	1	3	4	2003	1955	2211	2225	WN	335	N712SW	128	150	116	-14	8IAD	TPA	810	4	8	0		0	NA	NA	NA	NA	NA
+2008	1	3	4	754	735	1002	1000	WN	3231	N772SW	128	145	113	2	19	IAD	TPA	810	5	10	0		0	NA	NA	NA	NA	NA
+2008	1	3	4	628	620	804	750	WN	448	N428WN	96	90	76	14	8IND	BWI	515	3	17	0		0	NA	NA	NA	NA	NA
+2008	1	3	4	926	930	1054	1100	WN	1746	N612SW	88	90	78	-6	-4	IND	BWI	515	3	7	0		0	NA	NA	NA	NA	NA
+2008	1	3	4	1829	1755	1959	1925	WN	3920	N464WN	90	90	77	34	34	IND	BWI	515	3	10	0		0	2	0	0	0	32
+2008	1	3	4	1940	1915	2121	2110	WN	378	N726SW	101	115	87	11	25	IND	JAX	688	4	10	0		0	NA	NA	NA	NA	NA
+2008	1	3	4	1937	1830	2037	1940	WN	509	N763SW	240	250	230	57	67	IND	LAS	1591	3	7	0		0	10	0	0	0	47
+2008	1	3	4	1039	1040	1132	1150	WN	535	N428WN	233	250	219	-18	-1	IND	LAS	1591	7	7	0		0	NA	NA	NA	NA	NA
+2008	1	3	4	617	615	652	650	WN	11	N689SW	95	95	70	2	2IND	MCI	451	6	19	0		0	NA	NA	NA	NA	NA
+2008	1	3	4	1620	1620	1639	1655	WN	810	N648SW	79	95	70	-16	0IND	MCI	451	3	6	0		0	NA	NA	NA	NA	NA
+Time taken: 0.142 seconds, Fetched: 10 row(s)
+hive> select avg(arr_delay) from flight_data where month=1 and origin='SFO';
+Query ID = cloudera_20230527021111_e38b1c4e-4a5d-4f19-ab2a-fe9a5606bf2d
+Total jobs = 1
+Launching Job 1 out of 1
+Number of reduce tasks determined at compile time: 1
+In order to change the average load for a reducer (in bytes):
+  set hive.exec.reducers.bytes.per.reducer=<number>
+In order to limit the maximum number of reducers:
+  set hive.exec.reducers.max=<number>
+In order to set a constant number of reducers:
+  set mapreduce.job.reduces=<number>
+Starting Job = job_1685167927383_0005, Tracking URL = http://quickstart.cloudera:8088/proxy/application_1685167927383_0005/
+Kill Command = /usr/lib/hadoop/bin/hadoop job  -kill job_1685167927383_0005
+Hadoop job information for Stage-1: number of mappers: 3; number of reducers: 1
+2023-05-27 02:11:32,189 Stage-1 map = 0%,  reduce = 0%
+2023-05-27 02:12:07,572 Stage-1 map = 11%,  reduce = 0%, Cumulative CPU 10.32 sec
+2023-05-27 02:12:08,695 Stage-1 map = 100%,  reduce = 0%, Cumulative CPU 12.4 sec
+2023-05-27 02:12:19,503 Stage-1 map = 100%,  reduce = 100%, Cumulative CPU 13.96 sec
+MapReduce Total cumulative CPU time: 13 seconds 960 msec
+Ended Job = job_1685167927383_0005
+MapReduce Jobs Launched: 
+Stage-Stage-1: Map: 3  Reduce: 1   Cumulative CPU: 13.96 sec   HDFS Read: 689460562 HDFS Write: 19 SUCCESS
+Total MapReduce CPU Time Spent: 13 seconds 960 msec
+OK
+28.669403949068094
+Time taken: 64.767 seconds, Fetched: 1 row(s)
+
+
+
+CREATE AIRPORT TABLE
+
+hive> create table airports(name String,country String,area_code INT,code String)
+    > ROW FORMAT DELIMITED
+    > FIELDS TERMINATED BY ',';
+OK
+Time taken: 0.102 seconds
+
+
+LOAD DATA INTO AIRPRT TABLE
+
+
+hive> LOAD DATA LOCAL INPATH '/home/cloudera/Downloads/airports.csv' OVERWRITE INTO TABLE airports;
+Loading data to table default.airports
+Table default.airports stats: [numFiles=1, numRows=0, totalSize=58888, rawDataSize=0]
+OK
+Time taken: 0.346 seconds
+hive> select * from airports limit 10;
+OK
+Key West Nas /Boca Chica Field (private U. S. Navy )	US	67	NQX
+A L Mangham Jr. Regional	US	67	OCH
+AAF Heliport	US	67	AYE
+Aberdeen Regional	US	67	ABR
+Abilene Regional	US	67	ABI
+Abraham Lincoln Capital	US	67	SPI
+Acadiana Regional	US	67	ARA
+Accomack County	US	67	MFV
+Ada Municial	US	67	ADT
+Adak Island Ns	US	67	ADK
+Time taken: 0.057 seconds, Fetched: 10 row(s)
+
+
+
+
+JOIN TABLES WITH HIVE
+
+
+hive> select name,avg(arr_delay) from flight_data f inner join airports a on (f.origin=a.code) where month=1 group by name;
+Query ID = cloudera_20230527021616_72e62495-633c-417c-9407-bdd2a9231d07
+Total jobs = 1
+Execution log at: /tmp/cloudera/cloudera_20230527021616_72e62495-633c-417c-9407-bdd2a9231d07.log
+2023-05-27 02:16:29	Starting to launch local task to process map join;	maximum memory = 1013645312
+2023-05-27 02:16:31	Dump the side-table for tag: 1 with group count: 2361 into file: file:/tmp/cloudera/4dafd2f8-5362-4701-8049-097576f81f23/hive_2023-05-27_02-16-20_676_5252200789209222562-1/-local-10004/HashTable-Stage-2/MapJoin-mapfile01--.hashtable
+2023-05-27 02:16:31	Uploaded 1 File to: file:/tmp/cloudera/4dafd2f8-5362-4701-8049-097576f81f23/hive_2023-05-27_02-16-20_676_5252200789209222562-1/-local-10004/HashTable-Stage-2/MapJoin-mapfile01--.hashtable (87932 bytes)
+2023-05-27 02:16:31	End of local task; Time Taken: 2.051 sec.
+Execution completed successfully
+MapredLocal task succeeded
+Launching Job 1 out of 1
+Number of reduce tasks not specified. Estimated from input data size: 3
+In order to change the average load for a reducer (in bytes):
+  set hive.exec.reducers.bytes.per.reducer=<number>
+In order to limit the maximum number of reducers:
+  set hive.exec.reducers.max=<number>
+In order to set a constant number of reducers:
+  set mapreduce.job.reduces=<number>
+Starting Job = job_1685167927383_0006, Tracking URL = http://quickstart.cloudera:8088/proxy/application_1685167927383_0006/
+Kill Command = /usr/lib/hadoop/bin/hadoop job  -kill job_1685167927383_0006
+Hadoop job information for Stage-2: number of mappers: 3; number of reducers: 3
+2023-05-27 02:16:43,472 Stage-2 map = 0%,  reduce = 0%
+2023-05-27 02:17:23,165 Stage-2 map = 44%,  reduce = 0%, Cumulative CPU 12.28 sec
+2023-05-27 02:17:24,340 Stage-2 map = 78%,  reduce = 0%, Cumulative CPU 13.07 sec
+2023-05-27 02:17:25,451 Stage-2 map = 100%,  reduce = 0%, Cumulative CPU 14.01 sec
+2023-05-27 02:17:48,436 Stage-2 map = 100%,  reduce = 100%, Cumulative CPU 19.12 sec
+MapReduce Total cumulative CPU time: 19 seconds 120 msec
+Ended Job = job_1685167927383_0006
+MapReduce Jobs Launched: 
+Stage-Stage-2: Map: 3  Reduce: 3   Cumulative CPU: 19.12 sec   HDFS Read: 689479649 HDFS Write: 11732 SUCCESS
+Total MapReduce CPU Time Spent: 19 seconds 120 msec
+OK
+Abilene Regional	15.013043478260869
+Abraham Lincoln Capital	42.75912408759124
+Albert J Ellis	6.441558441558442
+Arcata	41.61363636363637
+Austin-bergstrom International	4.82597523943004
+Billings Logan International	4.6440677966101696
+Boise Air Terminal/Gowen Field	16.406460296096906
+Boundary Bay	23.26241134751773
+Buffalo Niagara International	11.748849104859335
+Charlotte Douglas International	6.4406990068754775
+Charlottesville-Albemarle	4.871428571428571
+Chicago Midway International	12.859635210150675
+Chicago O'hare International	27.593595701423176
+Chicago/Rockford International	2.3157894736842106
+Columbus Metropolitan	9.018518518518519
+Denver International	11.363121756905498
+Eastern Iowa	22.35930735930736
+Elko Regional	17.597014925373134
+Fanning Field	17.517241379310345
+Fort Lauderdale/hollywood International	8.50298309579052
+George Bush Intercontinental	9.636434663715086
+Gerald R. Ford International	17.722585924713584
+Grand Forks International	15.56637168141593
+Greenville Spartanburg International Airport	13.070815450643776
+Hartsfield-Jackson Atlanta International	7.943785440613027
+Hector International	18.4765625
+Henry E Rohlsen	10.675
+Honolulu International	-1.0649235147634293
+Indianapolis International	7.945868945868946
+Jackson Hole	38.26640926640927
+James Cox Dayton Intl	9.700503355704697
+Joe Foss Field	19.814432989690722
+Key Field	6.395833333333333
+La Crosse Municipal	24.32116788321168
+La Guardia	5.36539643515673
+Laredo International	13.823170731707316
+Lovell Field	7.1784702549575075
+Luis Munoz Marin International	8.677056719468574
+Manchester-boston Regional Airport	6.838485804416404
+Mc Namara Fld	63.075
+McNary Field	9.156862745098039
+Michiana Regional	30.154666666666667
+Mobile Regional	10.161228406909789
+Montgomery Regional (Dannelly Field)	5.268370607028754
+Mudhole Smith	24.0
+Municipal	15.72197640117994
+Myrtle Beach Afb	1.7405247813411078
+Natrona County International Airport	-0.47766323024054985
+Nome	-2.027027027027027
+Northwest Florida Regional	9.79491833030853
+Oneida County	9.653846153846153
+Ontario International	8.489149057681326
+Palm Beach International	5.45624313438301
+Palm Springs International	13.637314734088928
+Pellston Regional	48.285714285714285
+Pensacola Gulf Coast Regional	10.017711171662125
+Phoenix Sky Harbor International Airport	4.101787459049371
+Pocatello Regional	8.18
+Preston-glenn Field	2.1176470588235294
+Prudhoe Bay/Deadhorse	5.983050847457627
+Ralph Wien Memorial	1.381578947368421
+Redding Municipal	38.29496402877698
+Reno-Tahoe International	15.57085201793722
+Roberts Field	25.257731958762886
+Sacramento International	8.734715690466011
+Salt Lake City International	15.059041807536902
+San Diego International	9.542431192660551
+San Francisco International	28.669403949068094
+San Luis County Regional Airport	12.535645472061658
+Sarasota/Bradenton International	5.84812030075188
+Seattle-Tacoma International	8.705552907530983
+Sheppard AFB	7.606217616580311
+Sitka Rocky Gutierrez	8.674418604651162
+Spokane International	13.448275862068966
+T. F. Green State	4.485552115583076
+Tampa International	3.5917417417417417
+Ted Stevens Anchorage International	4.9961330239752515
+Texarkana Regional-Webb Field	11.936363636363636
+Tri-Cities Regional	3.231707317073171
+Tyler Pounds Regional Airport	8.77304964539007
+University Park Airport	18.37037037037037
+Valdosta Regional	4.405063291139241
+Washington Dulles International	13.39019517442754
+Westchester County	15.238210399032647
+Wiley Post/W.Rogers M	4.75
+Will Rogers World Airport	7.79559748427673
+Yakima Air Terminal	17.25
+Yakutat	17.625
+Yampa Valley	18.2925
+Yeager	12.234309623430962
+Adak Island Ns	-4.222222222222222
+Akron/canton Regional	10.701408450704225
+Alexandria International	15.923857868020304
+Bill and Hillary Clinton National/Adams Field	10.074548192771084
+Bishop International	14.093209054593874
+Bismarck Municipal	1.6859903381642511
+Blue Grass	11.532503457814661
+Bozeman Yellowstone International	22.1156462585034
+Bradley International	6.570018975332069
+Brunswick Golden Isles Airport	-0.1206896551724138
+Central Wisconsin	31.42105263157895
+Charleston AFB International	10.692520775623269
+Cherry Capital	27.881533101045296
+Corpus Christi International Airport	3.8220338983050848
+Dallas/Fort Worth International	9.144632378322402
+Dane County Regional	21.224765868886575
+Daytona Beach International	1.6145038167938932
+Des Moines International	16.73779527559055
+Dothan Regional	10.210526315789474
+Eppley Airfield	13.41659192825112
+Erie International	9.368421052631579
+Fairbanks International	0.12020460358056266
+Florence Regional	4.375
+Fort Wayne International Airport	31.18200408997955
+General Edward Lawrence Logan International	5.858861439312567
+General Mitchell International	16.12449799196787
+Great Falls International	7.0046728971962615
+Greater Rochester International	10.262269938650308
+Gulfport-Biloxi International	9.70098730606488
+Helena Regional	7.628787878787879
+Houghton County Memorial	31.363636363636363
+Huntsville International - Carl T. Jones Field	10.54524361948956
+Imperial County	7.353448275862069
+Kalamazoo/Battle Creek	24.52901023890785
+Kern County	4.506666666666667
+Kodiak Airport	9.785714285714286
+Kona International Airport	1.4748091603053435
+Lafayette Regional	9.56392694063927
+Lake Charles Regional	4.40625
+Lambert-st. Louis International	7.6999807061547365
+Lawton-Fort Sill Regional	11.217647058823529
+Lehigh Valley International	12.775456919060053
+Lewiston-Nez Perce County	4.8
+Lincoln	12.689795918367347
+Long Island MacArthur	-0.6670403587443946
+Los Angeles International	11.392227867257594
+Louis Armstrong New Orléans International Airport	6.496923527688251
+Louisville International (Standiford Field)	11.794845881758464
+Lubbock Preston Smith International	6.6709039548022595
+Mc Allen Miller International	8.63953488372093
+Mc Carran International	10.376584588836531
+Memphis International	13.527935813274981
+Mercedita	-2.036363636363636
+Miami International	15.078050567973616
+Minneapolis - St. Paul International	11.343321174222686
+Minot International	-5.440860215053763
+Missoula International	5.0793103448275865
+Modesto City-Co-Harry Sham Field	21.865800865800868
+Monterey Peninsula	13.948562783661119
+Montrose Regional Airport	8.808988764044944
+Nashville International	6.882086167800454
+Newark Liberty International	9.463444857496903
+Norfolk International	7.762002743484225
+Northwest Arkansas Regional	15.02659574468085
+Oakland International Airport	7.664073305670816
+Peoria International	26.38255033557047
+Petersburg James A Johnson	24.472727272727273
+Piedmont Triad International	12.483430799220272
+Raleigh-durham International	4.983125599232982
+Rapid City Regional	0.3597560975609756
+Richmond International Airport	6.973651960784314
+Roanoke Regional (Woodrum Field)	12.242753623188406
+Robert Gray AAF	10.320588235294117
+Rochester International	23.78688524590164
+Roswell International Air Center	4.403225806451613
+Savannah/Hilton Head International	8.900627615062762
+Sawyer International	53.42857142857143
+Simmons Nott	5.620689655172414
+Springfield-Branson National	22.44055944055944
+Stewart International	12.637813211845103
+Syracuse Hancock International	11.02579365079365
+Tallahassee Regional	4.7011494252873565
+Telluride Regional	11.378378378378379
+Tri-Cities	5.935483870967742
+Tucson International	6.2253968253968255
+Tulsa International	8.675390035228988
+Tupelo Regional	-1.8
+Valley International	7.620865139949109
+Waterloo Regional	15.1
+Wilkes-barre/scranton International	22.433673469387756
+William P Hobby	7.228734659331359
+Yellowstone Regional	-2.5824175824175826
+Albany International	7.412162162162162
+Albuquerque International	4.7077826725403815
+Asheville Regional	11.830645161290322
+Aspen	26.5869918699187
+Atlantic City International	6.103448275862069
+Augusta Regional	5.768421052631579
+Austin Straubel International	27.900990099009903
+Baltimore/Washington International Thurgood Marshall	4.869837296620776
+Bangor International Airport	19.065
+Bay County (Closed)	2.749034749034749
+Bellingham International	-6.666666666666667
+Bert Mooney Airport	4.590163934426229
+Bethel Airport	7.7439024390243905
+Birmingham-Shuttlesworth International	9.850701402805612
+Bob Hope	11.77543470218276
+Burlington International	14.003552397868562
+Capital Region International	26.03021148036254
+Cedar City Regional	21.26086956521739
+Central Illinois Regional Airport At Bloomington-normal	16.7027027027027
+Chico Municipal	41.75
+Cincinnati/Northern Kentucky International	10.093188268684957
+Cleveland-Hopkins International	10.752713178294574
+Colorado Springs	7.568213783403657
+Crested Butte Regional	45.875
+Cyril E King Airport	2.5163398692810457
+Dallas Love Field	6.249461439034898
+Detroit Metropolitan Wayne County	13.801015664115585
+Dubuque Regional	19.46078431372549
+Duluth International	6.435897435897436
+Durango-La Plata County	4.327586206896552
+Eagle County Regional	18.26977687626775
+East Texas Regional	8.887640449438202
+Easterwood Field	9.123287671232877
+El Paso International	4.358291735995563
+Elmira Corning Regional	11.660377358490566
+Evansville Regional Airport	13.061946902654867
+Flagstaff Pulliam	7.267175572519084
+Fort Smith Regional	4.728888888888889
+Fresno Yosemite International	11.715097402597403
+Friedman Memorial	5.822857142857143
+Gainesville Regional	3.1925465838509317
+Glacier Park International	15.889952153110048
+Golden Triangle Regional	11.797297297297296
+Grannis Field Regional	12.170731707317072
+Greater Binghamton	13.101694915254237
+Harrisburg International	13.674603174603174
+Hilo International	-2.9318766066838045
+Hilton Head	2.293103448275862
+Jack Brooks Regional	-7.368421052631579
+Jackson-Evers International	6.0
+Jacksonville International	4.124305555555556
+John F Kennedy International	3.465494325733565
+John Wayne	7.911041465766634
+Joslin Field - Magic Valley Regional	17.31304347826087
+Kahului	-0.13239573229873908
+Kansas City International Airport	7.418600401973324
+Ketchikan International	12.52
+Key West International	23.910112359550563
+La Palmdale Regional Airport	44.094339622641506
+Lihue	-2.3208516886930983
+Long Beach Municipal	6.153404429860541
+MBS International	19.06
+Mahlon Sweet Field	23.721374045801525
+Mathis Field	6.809917355371901
+Mc Clellan-Palomar	7.1454545454545455
+McGhee Tyson	11.833671399594321
+Meadows Field	13.533854166666666
+Melbourne International	3.0875
+Metropolitan Airport	12.423475258918296
+Middle Georgia Regional	6.26984126984127
+Midland International	8.558419243986254
+Mineta San Jose International	7.446926229508197
+Monroe Regional	8.524663677130045
+Newport News/Williamsburg International	4.394004282655247
+Orlando International	5.862539827036868
+Outagamie County Regional	23.237057220708447
+Philadelphia International	3.033366533864542
+Pittsburgh International	9.256280064136826
+Port Columbus International	8.599093264248705
+Portland International	6.275311203319502
+Portland International Jetport	10.584805653710248
+Quad City International	19.224184782608695
+Rafael Hernández	-5.379032258064516
+Regional	10.445635528330781
+Rick Husband Amarillo International	3.705211726384365
+Rogue Valley International - Medford	21.473094170403588
+Ronald Reagan Washington National Airport	2.418849658314351
+Ryan	11.417687074829932
+San Antonio International	6.46050246050246
+Santa Maria Pub/Capt G Allan Hancock	6.335664335664336
+Sioux Gateway	11.1875
+South Padre Is. Intl	12.853932584269662
+Southwest Florida International	3.4684719535783364
+Southwest Georgia Regional	15.010416666666666
+Toledo Express	14.0
+University Of Illinois Willard	47.457013574660635
+Ventura County Camarillo	-1.7410714285714286
+Waco Regional	8.270408163265307
+Walker Field	9.220670391061452
+Wichita Mid-Continent	11.836092715231787
+Wilmington International	3.4597156398104265
+Wrangell SPB	14.982142857142858
+Yuma MCAS/Yuma International	8.438172043010752
+Time taken: 89.932 seconds, Fetched: 285 row(s)
+
+
+
+FIND AVERAGE DEPARTURE DELAY PER DAY IN 2008 :
+
+
+hive> select day,avg(dep_delay) from flight_data group by day;
+Query ID = cloudera_20230527021919_d7940d7f-c5b1-4f9f-b0e6-055b5735061b
+Total jobs = 1
+Launching Job 1 out of 1
+Number of reduce tasks not specified. Estimated from input data size: 3
+In order to change the average load for a reducer (in bytes):
+  set hive.exec.reducers.bytes.per.reducer=<number>
+In order to limit the maximum number of reducers:
+  set hive.exec.reducers.max=<number>
+In order to set a constant number of reducers:
+  set mapreduce.job.reduces=<number>
+Starting Job = job_1685167927383_0007, Tracking URL = http://quickstart.cloudera:8088/proxy/application_1685167927383_0007/
+Kill Command = /usr/lib/hadoop/bin/hadoop job  -kill job_1685167927383_0007
+Hadoop job information for Stage-1: number of mappers: 3; number of reducers: 3
+2023-05-27 02:19:20,472 Stage-1 map = 0%,  reduce = 0%
+2023-05-27 02:19:55,451 Stage-1 map = 11%,  reduce = 0%, Cumulative CPU 10.79 sec
+2023-05-27 02:19:56,702 Stage-1 map = 44%,  reduce = 0%, Cumulative CPU 11.31 sec
+2023-05-27 02:19:57,757 Stage-1 map = 100%,  reduce = 0%, Cumulative CPU 13.16 sec
+2023-05-27 02:20:24,759 Stage-1 map = 100%,  reduce = 100%, Cumulative CPU 18.19 sec
+MapReduce Total cumulative CPU time: 18 seconds 190 msec
+Ended Job = job_1685167927383_0007
+MapReduce Jobs Launched: 
+Stage-Stage-1: Map: 3  Reduce: 3   Cumulative CPU: 18.19 sec   HDFS Read: 689469077 HDFS Write: 648 SUCCESS
+Total MapReduce CPU Time Spent: 18 seconds 190 msec
+OK
+3	8.124487135326511
+6	9.97993852855542
+9	9.426870350020717
+12	8.985977165641355
+15	10.246923827478266
+18	9.864850133863555
+21	11.441171459650256
+24	9.400883693910961
+27	12.352245320910784
+30	9.387892140428182
+1	11.05625866543425
+4	11.320772116708202
+7	10.021070439195801
+10	10.650646787599612
+13	9.812501407004858
+16	9.09674254229989
+19	10.7723860939885
+22	12.373879681331578
+25	8.651045607912613
+28	8.955568222994053
+31	13.721784776902886
+2	9.720089012810984
+5	8.54570651955599
+8	10.699898365829522
+11	9.628271196830053
+14	9.410912707934333
+17	8.888446389114506
+20	9.92333218448704
+23	10.302617596186767
+26	10.571840439669346
+29	7.615862597090034
+Time taken: 78.051 seconds, Fetched: 31 row(s)
+
+
+
+CREATE INDEX ON FLIGHT INFORMATION SYSTEM TABLE
+
+hive> create index origin_index on table flight_data (origin) as 'compact' with deferred rebuild;
+OK
+Time taken: 0.507 seconds
